@@ -1,9 +1,10 @@
 # 🚀 Uptime Monitor Fleet
 
-A containerized microservices architecture built to monitor web application availability. Designed with a "DevOps-first" mindset, featuring automated CI/CD pipelines, stateful caching, and a fully provisioned observability stack.
+A containerized microservices architecture built to monitor web application availability. Designed with a "DevOps-first" mindset, featuring automated CI/CD pipelines, stateful caching, an asynchronous monitoring engine, and a fully provisioned observability stack.
 
 ## ✨ Features
 
+* **Asynchronous Monitoring Engine:** Utilizes Python's `asyncio` to run non-blocking background workers, ensuring continuous 24/7 health checks completely decoupled from API traffic.
 * **Active Health Checking:** Periodically pings configured URLs and bypasses bot-protection using custom headers.
 * **Stateful Tracking:** Integrates with **Redis** to maintain an in-memory cache of the exact timestamp a service was last healthy (Timezone: Asia/Jerusalem).
 * **Time-Series Metrics:** Exposes a `/metrics` endpoint scraped by **Prometheus** for real-time tracking.
@@ -12,7 +13,7 @@ A containerized microservices architecture built to monitor web application avai
 
 ## 🛠️ Tech Stack
 
-* **Backend API:** Python 3.11, FastAPI, Requests
+* **Backend API:** Python 3.11, FastAPI, Requests, Asyncio
 * **Database / Cache:** Redis (Alpine)
 * **Observability:** Prometheus, Grafana
 * **Infrastructure:** Docker, Docker Compose, GitHub Actions
@@ -32,9 +33,9 @@ A containerized microservices architecture built to monitor web application avai
     ```
 
 2. **Launch the stack:**
-    ```bash
-    docker compose up -d --build
-    ```
+   ```bash
+   docker compose up -d --build
+   ```
 
 
 3. **Access the Services:**
@@ -57,6 +58,7 @@ docker compose down
 * [x] Implement CI/CD pipelines using GitHub Actions for automated testing.
 * [x] Add Observability metrics (Prometheus) and visualization dashboards (Grafana).
 * [x] Implement "Dashboards as Code" for zero-touch Grafana provisioning.
+* [x] Refactor architecture to use asynchronous background workers.
 * [ ] Configure automated Alerting (Slack/Discord Webhooks) for downtime events.
 * [ ] Deploy cloud infrastructure via Terraform (IaC).
 
