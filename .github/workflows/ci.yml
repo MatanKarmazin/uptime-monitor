@@ -1,0 +1,40 @@
+name: Uptime Monitor CI
+
+# 1. THE TRIGGER: When should this pipeline run?
+# We want it to run every time you push code to the main branch.
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+# 2. THE JOBS: What should the cloud server actually do?
+jobs:
+  build-and-test:
+    # GitHub gives you a free, temporary Linux server (Ubuntu) to run your code
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step A: Download your code from GitHub onto the temporary server
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # Step B: Because Ubuntu comes with Docker installed, we can run our stack!
+    - name: Build and Start Containers
+      run: docker compose up -d --build
+
+    # Step C: Give the FastAPI server a few seconds to boot up and connect to Redis
+    - name: Wait for API to boot
+      run: sleep 5
+
+    # Step D: The Ultimate Test. We ping the API from inside the CI server.
+    # If it doesn't return a 200 OK, the pipeline will "fail" and turn red.
+    - name: Test API Health Endpoint
+      run: |
+        echo "Testing API..."
+        curl -f http://localhost:8000/status || exit 1
+        echo "✅ API is up and running!"
+
+    # Step E: Clean up the server (good practice)
+    - name: Shut down containers
+      run: docker compose down
