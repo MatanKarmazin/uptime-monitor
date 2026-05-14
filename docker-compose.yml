@@ -33,6 +33,10 @@ services:
     container_name: uptime-monitor-grafana
     ports:
       - "3000:3000"
+    volumes:
+      - ./grafana/provisioning/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./grafana/provisioning/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./grafana/dashboards:/etc/grafana/dashboards
     depends_on:
       - prometheus
     restart: unless-stopped

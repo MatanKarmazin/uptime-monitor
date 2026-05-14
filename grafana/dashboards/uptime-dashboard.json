@@ -1,0 +1,70 @@
+{
+    "title": "Uptime Monitor Fleet",
+    "tags": [
+        "uptime"
+    ],
+    "timezone": "browser",
+    "refresh": "5s",
+    "schemaVersion": 38,
+    "panels": [
+        {
+            "type": "state-timeline",
+            "title": "Website Uptime Status",
+            "gridPos": {
+                "h": 15,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "my_prometheus"
+                    },
+                    "expr": "site_status",
+                    "format": "time_series",
+                    "legendFormat": "{{url}}",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "showValue": "Never",
+                "alignValue": "center",
+                "mergeValues": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "lineWidth": 0,
+                        "fillOpacity": 80
+                    },
+                    "color": {
+                        "mode": "mappings"
+                    },
+                    "mappings": [
+                        {
+                            "type": "value",
+                            "options": {
+                                "0": {
+                                    "color": "red",
+                                    "text": "DOWN"
+                                },
+                                "1": {
+                                    "color": "green",
+                                    "text": "UP"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "overrides": []
+            },
+            "transparent": true
+        }
+    ],
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    }
+}

@@ -1,20 +1,21 @@
-# 🚀 Uptime Monitor
+# 🚀 Uptime Monitor Fleet
 
-A lightweight, containerized microservice built to monitor the availability of web applications and track their historical uptime. Designed with a "DevOps-first" approach, emphasizing containerization, statefulness, and automation.
+A containerized microservices architecture built to monitor web application availability. Designed with a "DevOps-first" mindset, featuring automated CI/CD pipelines, stateful caching, and a fully provisioned observability stack.
 
 ## ✨ Features
 
-* **Active Health Checking:** Periodically pings configured URLs to verify HTTP `200 OK` responses.
-* **Anti-Bot Evasion:** Utilizes custom `User-Agent` headers to successfully bypass standard bot-protection firewalls.
-* **Stateful Tracking:** Integrates with **Redis** to maintain an in-memory cache of the last known time a service was healthy.
-* **Fully Containerized:** Packaged cleanly using **Docker** and orchestrated via **Docker Compose** for a seamless, one-click developer experience.
-* **Live Reloading:** Configured with Docker volumes for instant feedback during local development.
+* **Active Health Checking:** Periodically pings configured URLs and bypasses bot-protection using custom headers.
+* **Stateful Tracking:** Integrates with **Redis** to maintain an in-memory cache of the exact timestamp a service was last healthy (Timezone: Asia/Jerusalem).
+* **Time-Series Metrics:** Exposes a `/metrics` endpoint scraped by **Prometheus** for real-time tracking.
+* **Dashboards as Code:** Utilizes **Grafana Provisioning** to automatically load pre-configured State Timeline dashboards directly from Git—no manual UI setup required.
+* **Automated CI/CD:** A GitHub Actions workflow automatically builds the Docker environment and runs integration tests on every push.
 
 ## 🛠️ Tech Stack
 
 * **Backend API:** Python 3.11, FastAPI, Requests
 * **Database / Cache:** Redis (Alpine)
-* **Infrastructure:** Docker, Docker Compose
+* **Observability:** Prometheus, Grafana
+* **Infrastructure:** Docker, Docker Compose, GitHub Actions
 
 ## 🚀 Getting Started
 
@@ -29,31 +30,35 @@ A lightweight, containerized microservice built to monitor the availability of w
    git clone https://github.com/MatanKarmazin/uptime-monitor.git
    cd uptime-monitor
     ```
+
 2. **Launch the stack:**
     ```bash
     docker compose up -d --build
     ```
-3. **View the results:**
-    Open your browser and navigate to the API endpoint:
-    ```text
-    http://127.0.0.1:8000/status
-    ```
+
+
+3. **Access the Services:**
+* **API JSON Status:** `http://127.0.0.1:8000/status`
+* **Prometheus Metrics:** `http://127.0.0.1:8000/metrics`
+* **Grafana Dashboard:** `http://127.0.0.1:3000` *(Default login: admin / admin)*
 
 
 
 ### Shutting Down
 
-To gracefully stop the containers and clean up the networking:
+To gracefully stop the containers:
 
 ```bash
 docker compose down
 ```
 
-## 🏗️ Future Roadmap (In Progress)
+## 🏗️ Future Roadmap
 
-* [ ] Implement CI/CD pipelines using GitHub Actions for automated testing and image building.
+* [x] Implement CI/CD pipelines using GitHub Actions for automated testing.
+* [x] Add Observability metrics (Prometheus) and visualization dashboards (Grafana).
+* [x] Implement "Dashboards as Code" for zero-touch Grafana provisioning.
+* [ ] Configure automated Alerting (Slack/Discord Webhooks) for downtime events.
 * [ ] Deploy cloud infrastructure via Terraform (IaC).
-* [ ] Add Observability metrics (Prometheus) and visualization dashboards (Grafana).
 
 ---
 
