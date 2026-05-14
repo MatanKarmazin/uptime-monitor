@@ -26,7 +26,7 @@ A lightweight, containerized microservice built to monitor the availability of w
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/MatanKarmazin/uptime-monitor.git](https://github.com/MatanKarmazin/uptime-monitor.git)
+   git clone https://github.com/MatanKarmazin/uptime-monitor.git
    cd uptime-monitor
     ```
 2. **Launch the stack:**
@@ -36,7 +36,7 @@ A lightweight, containerized microservice built to monitor the availability of w
 3. **View the results:**
     Open your browser and navigate to the API endpoint:
     ```text
-    [http://127.0.0.1:8000/status](http://127.0.0.1:8000/status)    
+    http://127.0.0.1:8000/status
     ```
 
 
