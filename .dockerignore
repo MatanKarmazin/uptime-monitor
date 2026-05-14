@@ -1,0 +1,23 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+venv/
+
+# Docker config
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Mac OS
+.DS_Store
+
+# IDEs
+.vscode/
