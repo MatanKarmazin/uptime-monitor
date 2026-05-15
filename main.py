@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import requests
 import redis
 import datetime
-import asyncio # הספרייה שתאפשר לנו להריץ דברים ברקע
+import asyncio 
 from prometheus_client import make_asgi_app, Gauge
 from zoneinfo import ZoneInfo
 
@@ -68,3 +68,10 @@ def check_status():
         })
         
     return {"status_checks": results}
+
+@app.get("/")
+async def read_root():
+    return {
+        "status": "Success", 
+        "message": "Hello from the automated CI/CD pipeline!"
+    }
