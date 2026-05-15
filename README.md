@@ -9,15 +9,16 @@ A containerized microservices architecture built to monitor web application avai
 * **Stateful Tracking:** Integrates with **Redis** to maintain an in-memory cache of the exact timestamp a service was last healthy (Timezone: Asia/Jerusalem).
 * **Time-Series Metrics:** Exposes a `/metrics` endpoint scraped by **Prometheus** for real-time tracking.
 * **Dashboards as Code:** Utilizes **Grafana Provisioning** to automatically load pre-configured State Timeline dashboards directly from Git—no manual UI setup required.
-* **Automated CI/CD:** A GitHub Actions workflow automatically builds the Docker environment and runs integration tests on every push.
 * **Infrastructure as Code (IaC):** AWS cloud infrastructure (EC2, Security Groups) is provisioned automatically and reproducibly using **Terraform**.
+* **Zero-Touch CI/CD:** A GitHub Actions workflow automatically tests the code and securely deploys the containerized stack directly to the AWS EC2 instance on every push to the `main` branch.
 
 ## 🛠️ Tech Stack
 
 * **Backend API:** Python 3.11, FastAPI, Requests, Asyncio
 * **Database / Cache:** Redis (Alpine)
 * **Observability:** Prometheus, Grafana
-* **Infrastructure:** Docker, Docker Compose, GitHub Actions, Terraform, AWS (EC2)
+* **Infrastructure:** Docker, Docker Compose, Terraform, AWS (EC2)
+* **Automation:** GitHub Actions (CI/CD)
 
 ## 🚀 Getting Started
 
@@ -25,13 +26,13 @@ A containerized microservices architecture built to monitor web application avai
 
 * Docker Desktop installed and running.
 * Git installed.
-* *For Cloud Deployment:* AWS CLI configured and Terraform installed.
+* *For Cloud Deployment:* AWS CLI configured, Terraform installed, and GitHub Repository Secrets configured (`EC2_HOST`, `EC2_USERNAME`, `EC2_SSH_KEY`).
 
 ### 💻 Local Development
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/MatanKarmazin/uptime-monitor.git](https://github.com/MatanKarmazin/uptime-monitor.git)
+   git clone https://github.com/MatanKarmazin/uptime-monitor.git
    cd uptime-monitor
    ```
 
@@ -50,30 +51,16 @@ A containerized microservices architecture built to monitor web application avai
 
 ### ☁️ Cloud Deployment (AWS)
 
-1. **Provision Infrastructure:**
-```bash
-cd terraform
-terraform init
-terraform apply
-```
+1. **Provision Infrastructure (One-Time Setup):**
+   ```bash
+   cd terraform
+   terraform init
+   terraform apply
+   ```
+   *(Note the `server_public_ip` output upon completion to configure your GitHub Secrets).*    
 
-
-*(Note the `server_public_ip` output upon completion).*
-2. **Deploy the Application:**
-SSH into the newly created EC2 instance:
-```bash
-ssh -i ~/.ssh/uptime_key ubuntu@<server_public_ip>
-```
-
-
-Inside the server, clone the repo and run Docker Compose:
-```bash
-git clone https://github.com/MatanKarmazin/uptime-monitor.git
-cd uptime-monitor
-sudo docker compose up -d --build
-```
-
-
+2. **Continuous Deployment:**
+Deployments are handled automatically. Pushing code to the `main` branch triggers the GitHub Actions workflow (`deploy.yml`), which securely connects to the EC2 instance, pulls the latest code, and rebuilds the Docker containers without manual intervention.
 
 ### Shutting Down
 
@@ -87,8 +74,9 @@ sudo docker compose up -d --build
 * [x] Implement "Dashboards as Code" for zero-touch Grafana provisioning.
 * [x] Refactor architecture to use asynchronous background workers.
 * [x] Deploy cloud infrastructure via Terraform (IaC).
-* [ ] Configure automated Alerting (Slack/Discord Webhooks) for downtime events.
+* [x] Implement Continuous Deployment (CD) for automated EC2 rollouts.
 * [ ] Secure the application with a domain name, HTTPS, and Let's Encrypt.
+* [ ] Configure automated Alerting (Slack/Discord Webhooks) for downtime events.
 * [ ] Automate Terraform deployments (GitOps) within GitHub Actions.
 
 ---
