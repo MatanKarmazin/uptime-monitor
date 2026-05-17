@@ -3,6 +3,7 @@ import requests
 import redis
 import datetime
 import asyncio 
+import os ## NEW: Needed for environment variables
 from prometheus_client import make_asgi_app, Gauge
 from zoneinfo import ZoneInfo
 
@@ -19,10 +20,30 @@ SITES_TO_MONITOR = [
     "https://www.hit.ac.il",
     "https://www.this-shouldnt-work.com",
     "https://www.youtube.com"
-    # Add more sites here
 ]
 
 SITE_STATUS_GAUGE = Gauge('site_status', '1 if site is up, 0 if down', ['url'])
+
+## NEW: The Slack Alert Function
+def send_slack_alert(service_url: str, error_msg: str, is_recovery: bool = False):
+    """Sends a formatted alert to a Slack channel via Webhook."""
+    webhook_url = os.getenv("SLACK_WEBHOOK_URL")
+    
+    if not webhook_url:
+        print(f"⚠️ SLACK_WEBHOOK_URL not set. Missed alert for {service_url}")
+        return
+
+    if is_recovery:
+        text = f"✅ *RESOLVED* ✅\n*URL:* {service_url}\n*Status:* Back Online!"
+    else:
+        text = f"🚨 *CRITICAL ALERT* 🚨\n*URL:* {service_url}\n*Error:* {error_msg}"
+
+    payload = {"text": text}
+
+    try:
+        requests.post(webhook_url, json=payload, timeout=5)
+    except Exception as e:
+        print(f"❌ Failed to send Slack alert: {e}")
 
 def perform_health_checks():
     headers = {
@@ -30,6 +51,9 @@ def perform_health_checks():
     }
     
     for site in SITES_TO_MONITOR:
+        ## NEW: Fetch the previous state before we check the current state
+        previous_status = cache.get(f"{site}_status")
+
         try:
             response = requests.get(site, headers=headers, timeout=5)
             is_up = response.status_code == 200
@@ -39,11 +63,25 @@ def perform_health_checks():
                 cache.set(site, current_time)
                 cache.set(f"{site}_status", "UP")
                 
+                ## NEW: If it was DOWN and is now UP, send a recovery alert
+                if previous_status == "DOWN":
+                    send_slack_alert(site, "", is_recovery=True)
+                    
+            else:
+                ## NEW: Handle non-200 HTTP responses (like 500 or 404)
+                cache.set(f"{site}_status", "DOWN")
+                if previous_status != "DOWN": # Only alert once!
+                    send_slack_alert(site, f"HTTP Error {response.status_code}")
+                
             SITE_STATUS_GAUGE.labels(url=site).set(1.0 if is_up else 0.0)
             
-        except requests.RequestException:
-            SITE_STATUS_GAUGE.labels(url=site).set(0.0)
+        except requests.RequestException as e:
             cache.set(f"{site}_status", "DOWN")
+            SITE_STATUS_GAUGE.labels(url=site).set(0.0)
+            
+            ## NEW: Handle total connection failures (timeouts, DNS issues)
+            if previous_status != "DOWN": # Only alert once!
+                send_slack_alert(site, "Connection Failed or Timeout")
 
 async def background_monitor_loop():
     while True:
