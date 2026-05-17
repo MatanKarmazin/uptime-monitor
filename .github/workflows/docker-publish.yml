@@ -1,8 +1,11 @@
 name: Push to Amazon ECR
 
 on:
-  push:
+  workflow_dispatch:
     branches: [ "main", "master" ]
+    paths-ignore:
+      - '**.md'       # Don't run if only markdown files change
+      - 'docs/**'     # Don't run if only images in the docs folder change
 
 # We define these as environment variables so they are easy to change later
 env:

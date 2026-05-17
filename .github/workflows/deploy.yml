@@ -2,9 +2,12 @@ name: Continuous Deployment
 
 # This tells GitHub to run this workflow ONLY when code is pushed to the main branch
 on:
-  push:
+  workflow_dispatch:
     branches:
       - main
+    paths-ignore:
+      - '**.md'       # Don't run if only markdown files change
+      - 'docs/**'     # Don't run if only images in the docs folder change
 
 jobs:
   deploy:
