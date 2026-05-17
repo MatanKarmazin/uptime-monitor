@@ -1,44 +1,44 @@
-# 🚀 Uptime Monitor Fleet
+# 🚀 Cloud-Native Uptime Monitor & Alerting Engine
 
 ![CI/CD Status](https://github.com/MatanKarmazin/uptime-monitor/actions/workflows/ci.yml/badge.svg)
 ![Deployment Status](https://github.com/MatanKarmazin/uptime-monitor/actions/workflows/deploy.yml/badge.svg)
 
-A containerized microservices architecture built to monitor web application availability. Designed with a "DevOps-first" mindset, featuring automated CI/CD pipelines, stateful caching, an asynchronous monitoring engine, a fully provisioned observability stack, and Cloud Infrastructure as Code.
+A containerized microservices architecture built to monitor web application availability. Designed with a "DevOps-first" mindset, featuring automated CI/CD pipelines, stateful caching, an asynchronous monitoring engine, a fully provisioned observability stack, and multi-tier cloud orchestration.
 
 ## ✨ Features
 
 * **Asynchronous Monitoring Engine:** Utilizes Python's `asyncio` to run non-blocking background workers, ensuring continuous 24/7 health checks completely decoupled from API traffic.
-* **Active Health Checking:** Periodically pings configured URLs and bypasses bot-protection using custom headers.
-* **Stateful Alerting (Incident Response):** Leverages Redis as a memory cache to track the UP/DOWN state of targets. Alerts are dispatched to a Slack Webhook *exclusively* on state changes (e.g., site goes down, or site recovers) to prevent alert fatigue.
-* **Stateful Tracking:** Integrates with **Redis** to maintain an in-memory cache of the exact timestamp a service was last healthy (Timezone: Asia/Jerusalem).
-* **Time-Series Metrics:** Exposes a `/metrics` endpoint scraped by **Prometheus** for real-time tracking.
+* **Stateful Alerting (Incident Response):** Leverages Redis as an in-memory cache to track the UP/DOWN state of targets. Alerts are dispatched to a Slack Webhook *exclusively* on state changes (e.g., site goes down, or site recovers) to eliminate alert fatigue.
+* **Production-Grade Orchestration:** Migrated runtime environment from standalone virtual machines to a highly available **Amazon EKS (Kubernetes)** cluster utilizing declarative manifests for automated deployment scaling and internal service discovery.
 * **Dashboards as Code:** Utilizes **Grafana Provisioning** to automatically load pre-configured State Timeline dashboards directly from Git—no manual UI setup required.
-* **Infrastructure as Code (IaC):** AWS cloud infrastructure (EC2, Security Groups) is provisioned automatically and reproducibly using **Terraform**.
-* **Zero-Touch CI/CD:** A GitHub Actions workflow automatically tests the code and securely deploys the containerized stack directly to the AWS EC2 instance on every push to the `main` branch.
+* **Infrastructure as Code (IaC):** AWS cloud infrastructure (EKS Cluster, Managed Node Groups, ECR registries, EC2, VPCs, Security Groups) is provisioned automatically and reproducibly using **Terraform**.
+* **Zero-Touch CI/CD:** Integrated multi-stage GitHub Actions workflows to automatically run lint/test cycles, compile production Docker images, and securely push assets to **Amazon ECR**.
 
 ## 📊 System Observability
 
 ![Grafana Dashboard showing Uptime Metrics](docs/grafana-dashboard.png)
 
-## 🚨 Incident Response
+## 🚨 Incident Response & Kubernetes Verification
 
 ![Slack Webhook Critical Alerts](docs/slack-alerts.png)
+
+![Kubernetes AWS Load Balancer JSON Response](docs/kubernetes-lb-status.png)
 
 ## 🛠️ Tech Stack
 
 * **Backend API:** Python 3.11, FastAPI, Requests, Asyncio
 * **Database / Cache:** Redis (Alpine)
 * **Observability:** Prometheus, Grafana
-* **Infrastructure:** Docker, Docker Compose, Terraform, AWS (EC2)
-* **Automation & Alerting:** GitHub Actions (CI/CD), Slack Webhooks
+* **Orchestration & Cloud:** Kubernetes (EKS), Docker, Amazon ECR, Terraform, AWS (EC2, ELB, VPC)
+* **Automation & Alerting:** GitHub Actions (CI/CD), Shell Scripting, Slack Webhooks
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 * Docker Desktop installed and running.
-* Git installed.
-* *For Cloud Deployment:* AWS CLI configured, Terraform installed, and GitHub Repository Secrets configured (`EC2_HOST`, `EC2_USERNAME`, `EC2_SSH_KEY`).
+* Git & Terraform installed.
+* AWS CLI configured with appropriate IAM deployment permissions.
 
 ### 💻 Local Development
 
@@ -46,46 +46,44 @@ A containerized microservices architecture built to monitor web application avai
    ```bash
    git clone https://github.com/MatanKarmazin/uptime-monitor.git
    cd uptime-monitor
-    ```
+   ```
 
 2. **Configure Environment Variables:**
 Create a `.env` file in the root directory to enable local Slack alerts:
-    ```env
-    SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
-    ```
+   ```env
+   SLACK_WEBHOOK_URL=[https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+   ```
 
 
 3. **Launch the stack:**
-    ```bash
-    docker compose up -d --build
-    ```
-
-
-4. **Access the Services:**
-* **API JSON Status:** `http://127.0.0.1:8000/status`
-* **Prometheus Metrics:** `http://127.0.0.1:8000/metrics`
-* **Grafana Dashboard:** `http://127.0.0.1:3000` *(Default login: admin / admin)*
+   ```bash
+   docker compose up -d --build
+   ```
 
 
 
-### ☁️ Cloud Deployment (AWS)
+### ☁️ Cloud Orchestration (Amazon EKS)
 
-1. **Provision Infrastructure (One-Time Setup):**
-    ```bash
-    cd terraform
-   terraform init
-   terraform apply
-    ```
+The entire cloud infrastructure and Kubernetes deployment lifecycle has been codified into 1-click automation scripts. You do not need to run manual `terraform` or `kubectl` commands.
+
+1. **Deploy the Cluster & Microservices:**
+Run the deployment script to provision the AWS EKS cluster, configure local routing, and deploy the Kubernetes manifests:
+   ```bash
+   chmod +x deploy.sh
+   ./deploy.sh
+   ```
 
 
-*(Note the `server_public_ip` output upon completion to configure your GitHub Secrets).*
-2. **Continuous Deployment:**
-Deployments are handled automatically. Pushing code to the `main` branch triggers the GitHub Actions workflow (`deploy.yml`), which securely connects to the EC2 instance, pulls the latest code, and rebuilds the Docker containers without manual intervention.
+*(The script takes ~15 minutes to provision the AWS infrastructure and will output your live Elastic Load Balancer URL upon completion).*
 
-### Shutting Down
+## 🧹 Tear Down (1-Click Destroy)
 
-* **Stop Local Containers:** `docker compose down`
-* **Destroy Cloud Infrastructure:** `cd terraform && terraform destroy`
+To prevent unexpected AWS cloud costs, the teardown process is fully automated. This script safely destroys all Terraform state resources, EKS clusters, and networking gateways:
+
+   ```bash
+   chmod +x destroy.sh
+   ./destroy.sh
+   ```
 
 ## 🏗️ Future Roadmap
 
@@ -96,6 +94,7 @@ Deployments are handled automatically. Pushing code to the `main` branch trigger
 * [x] Deploy cloud infrastructure via Terraform (IaC).
 * [x] Implement Continuous Deployment (CD) for automated EC2 rollouts.
 * [x] Configure automated Alerting (Slack/Discord Webhooks) for downtime events.
-* [ ] Secure the application with a domain name, HTTPS, and Let's Encrypt.
-* [ ] Migrate runtime environment from Docker Compose on EC2 to **Amazon EKS (Kubernetes)**.
-* [ ] Automate Terraform deployments (GitOps) within GitHub Actions.
+* [x] Migrate runtime environment from Docker Compose on EC2 to **Amazon EKS (Kubernetes)**.
+* [ ] Secure the application with a domain name, HTTPS, and Let's Encrypt using an Ingress Controller (Nginx).
+* [ ] Integrate HashiCorp Vault or AWS Secrets Manager to completely decouple sensitive credentials from deployment files.
+* [ ] Convert the CI/CD pipeline to a full GitOps workflow using ArgoCD to track declarative state configurations directly in Git.
