@@ -3,3 +3,4 @@ uvicorn
 requests
 redis
 prometheus-client
+dotenv-python
