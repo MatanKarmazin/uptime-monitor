@@ -19,7 +19,8 @@ SITES_TO_MONITOR = [
     "https://github.com",
     "https://www.hit.ac.il",
     "https://www.this-shouldnt-work.com",
-    "https://www.youtube.com"
+    "https://www.youtube.com",
+    "https://www.completely-new-broken-site.com"
 ]
 
 SITE_STATUS_GAUGE = Gauge('site_status', '1 if site is up, 0 if down', ['url'])
