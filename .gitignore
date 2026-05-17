@@ -11,6 +11,10 @@ ENV/
 # Environment Variables
 .env
 
+# Sensitive AWS & App Credentials
+*.pem
+*.csv
+
 # Mac OS
 .DS_Store
 .AppleDouble
