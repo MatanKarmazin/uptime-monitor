@@ -18,6 +18,8 @@ ENV/
 # SSH Keys
 uptime-monitor-key
 uptime-monitor-key.pub
+uptime-monitor-rsa-key
+uptime-monitor-rsa-key.pub
 
 # Logs
 *.log
