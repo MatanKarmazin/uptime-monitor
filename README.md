@@ -3,98 +3,224 @@
 ![CI/CD Status](https://github.com/MatanKarmazin/uptime-monitor/actions/workflows/ci.yml/badge.svg)
 ![Deployment Status](https://github.com/MatanKarmazin/uptime-monitor/actions/workflows/deploy.yml/badge.svg)
 
-A containerized microservices architecture built to monitor web application availability. Designed with a "DevOps-first" mindset, featuring automated CI/CD pipelines, stateful caching, an asynchronous monitoring engine, a fully provisioned observability stack, and multi-tier cloud orchestration.
+A containerized uptime monitoring and observability platform designed to monitor web application availability in real time.
 
-## ✨ Features
+Built with a DevOps-focused approach, the project demonstrates infrastructure automation, monitoring, alerting, container orchestration with Docker Compose, Infrastructure as Code (IaC), and CI/CD automation on AWS.
 
-* **Asynchronous Monitoring Engine:** Utilizes Python's `asyncio` to run non-blocking background workers, ensuring continuous 24/7 health checks completely decoupled from API traffic.
-* **Stateful Alerting (Incident Response):** Leverages Redis as an in-memory cache to track the UP/DOWN state of targets. Alerts are dispatched to a Slack Webhook *exclusively* on state changes (e.g., site goes down, or site recovers) to eliminate alert fatigue.
-* **Production-Grade Orchestration:** Migrated runtime environment from standalone virtual machines to a highly available **Amazon EKS (Kubernetes)** cluster utilizing declarative manifests for automated deployment scaling and internal service discovery.
-* **Dashboards as Code:** Utilizes **Grafana Provisioning** to automatically load pre-configured State Timeline dashboards directly from Git—no manual UI setup required.
-* **Infrastructure as Code (IaC):** AWS cloud infrastructure (EKS Cluster, Managed Node Groups, ECR registries, EC2, VPCs, Security Groups) is provisioned automatically and reproducibly using **Terraform**.
-* **Zero-Touch CI/CD:** Integrated multi-stage GitHub Actions workflows to automatically run lint/test cycles, compile production Docker images, and securely push assets to **Amazon ECR**.
+---
 
-## 📊 System Observability
+# ✨ Features
+
+* **Asynchronous Monitoring Engine:**  
+  Uses Python `asyncio` background workers to continuously perform non-blocking health checks independently from API traffic.
+
+* **Stateful Alerting:**  
+  Redis is used as an in-memory state store to track the current availability status of monitored targets. Slack alerts are triggered only on state transitions (UP → DOWN / DOWN → UP) to reduce alert fatigue.
+
+* **Observability Stack:**  
+  Prometheus collects uptime metrics exposed by the FastAPI application, while Grafana provides real-time dashboards and uptime visualization.
+
+* **Containerized Architecture:**  
+  All services run in isolated Docker containers managed through Docker Compose for simplified local development and cloud deployment consistency.
+
+* **Infrastructure as Code (IaC):**  
+  AWS infrastructure provisioning is automated using Terraform, including EC2 instances, networking rules, and security groups.
+
+* **CI/CD Automation:**  
+  GitHub Actions pipelines automatically validate the application, build Docker images, and support deployment workflows.
+
+---
+
+# 📊 System Observability
 
 ![Grafana Dashboard showing Uptime Metrics](docs/grafana-dashboard.png)
 
-## 🚨 Incident Response & Kubernetes Verification
+---
+
+# 🚨 Incident Response & Alerting
 
 ![Slack Webhook Critical Alerts](docs/slack-alerts.png)
 
-![Kubernetes AWS Load Balancer JSON Response](docs/kubernetes-lb-status.png)
+---
 
-## 🛠️ Tech Stack
+# 🛠️ Tech Stack
 
-* **Backend API:** Python 3.11, FastAPI, Requests, Asyncio
-* **Database / Cache:** Redis (Alpine)
+* **Backend API:** Python 3.11, FastAPI, Asyncio, Requests
+* **State Management / Cache:** Redis
 * **Observability:** Prometheus, Grafana
-* **Orchestration & Cloud:** Kubernetes (EKS), Docker, Amazon ECR, Terraform, AWS (EC2, ELB, VPC)
-* **Automation & Alerting:** GitHub Actions (CI/CD), Shell Scripting, Slack Webhooks
+* **Containerization:** Docker, Docker Compose
+* **Cloud & Infrastructure:** AWS EC2, Terraform
+* **CI/CD & Automation:** GitHub Actions
+* **Alerting:** Slack Webhooks
 
-## 🚀 Getting Started
+---
 
-### Prerequisites
+# 🏗️ Architecture Overview
 
-* Docker Desktop installed and running.
-* Git & Terraform installed.
-* AWS CLI configured with appropriate IAM deployment permissions.
+```text
+                    ┌────────────────────┐
+                    │   FastAPI Service  │
+                    │  (Monitoring API)  │
+                    └─────────┬──────────┘
+                              │
+               Background Async Health Checks
+                              │
+                              ▼
+                    ┌────────────────────┐
+                    │    Monitored URLs  │
+                    └────────────────────┘
 
-### 💻 Local Development
+                              │
+                              ▼
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/MatanKarmazin/uptime-monitor.git
-   cd uptime-monitor
-   ```
+                    ┌────────────────────┐
+                    │       Redis        │
+                    │   Stateful Cache   │
+                    └────────────────────┘
 
-2. **Configure Environment Variables:**
-Create a `.env` file in the root directory to enable local Slack alerts:
-   ```env
-   SLACK_WEBHOOK_URL=[https://hooks.slack.com/services/YOUR/WEBHOOK/URL
-   ```
+                              │
+                              ▼
 
+                    ┌────────────────────┐
+                    │    Prometheus      │
+                    │  Metrics Scraping  │
+                    └────────────────────┘
 
-3. **Launch the stack:**
-   ```bash
-   docker compose up -d --build
-   ```
+                              │
+                              ▼
 
+                    ┌────────────────────┐
+                    │      Grafana       │
+                    │    Dashboards      │
+                    └────────────────────┘
 
+                              │
+                              ▼
 
-### ☁️ Cloud Orchestration (Amazon EKS)
+                    ┌────────────────────┐
+                    │   Slack Webhooks   │
+                    │   Incident Alerts  │
+                    └────────────────────┘
+```
 
-The entire cloud infrastructure and Kubernetes deployment lifecycle has been codified into 1-click automation scripts. You do not need to run manual `terraform` or `kubectl` commands.
+---
 
-1. **Deploy the Cluster & Microservices:**
-Run the deployment script to provision the AWS EKS cluster, configure local routing, and deploy the Kubernetes manifests:
-   ```bash
-   chmod +x deploy.sh
-   ./deploy.sh
-   ```
+# 🚀 Getting Started
 
+## Prerequisites
 
-*(The script takes ~15 minutes to provision the AWS infrastructure and will output your live Elastic Load Balancer URL upon completion).*
+* Docker Desktop installed and running
+* Git installed
+* Terraform installed
+* AWS CLI configured with valid IAM credentials
 
-## 🧹 Tear Down (1-Click Destroy)
+---
 
-To prevent unexpected AWS cloud costs, the teardown process is fully automated. This script safely destroys all Terraform state resources, EKS clusters, and networking gateways:
+# 💻 Local Development
 
-   ```bash
-   chmod +x destroy.sh
-   ./destroy.sh
-   ```
+## 1. Clone the Repository
 
-## 🏗️ Future Roadmap
+```bash
+git clone https://github.com/MatanKarmazin/uptime-monitor.git
+cd uptime-monitor
+```
 
-* [x] Implement CI/CD pipelines using GitHub Actions for automated testing.
-* [x] Add Observability metrics (Prometheus) and visualization dashboards (Grafana).
-* [x] Implement "Dashboards as Code" for zero-touch Grafana provisioning.
-* [x] Refactor architecture to use asynchronous background workers.
-* [x] Deploy cloud infrastructure via Terraform (IaC).
-* [x] Implement Continuous Deployment (CD) for automated EC2 rollouts.
-* [x] Configure automated Alerting (Slack/Discord Webhooks) for downtime events.
-* [x] Migrate runtime environment from Docker Compose on EC2 to **Amazon EKS (Kubernetes)**.
-* [ ] Secure the application with a domain name, HTTPS, and Let's Encrypt using an Ingress Controller (Nginx).
-* [ ] Integrate HashiCorp Vault or AWS Secrets Manager to completely decouple sensitive credentials from deployment files.
-* [ ] Convert the CI/CD pipeline to a full GitOps workflow using ArgoCD to track declarative state configurations directly in Git.
+---
+
+## 2. Configure Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+```
+
+---
+
+## 3. Launch the Stack
+
+```bash
+docker compose up -d --build
+```
+
+---
+
+# 🌐 Access the Services
+
+| Service | URL |
+|---|---|
+| API | `http://localhost:8000/status` |
+| Metrics | `http://localhost:8000/metrics` |
+| Grafana | `http://localhost:3000` |
+| Prometheus | `http://localhost:9090` |
+
+---
+
+# ☁️ AWS Deployment (EC2 + Docker Compose)
+
+The project can be deployed to AWS EC2 using Terraform for infrastructure provisioning.
+
+## Provision Infrastructure
+
+```bash
+cd terraform
+terraform init
+terraform apply
+```
+
+Terraform provisions:
+- EC2 instance
+- Security Group
+- SSH access rules
+- Networking configuration
+
+---
+
+## Deploy the Application
+
+SSH into the EC2 instance:
+
+```bash
+ssh -i your-key.pem ubuntu@YOUR_PUBLIC_IP
+```
+
+Clone the repository and start the services:
+
+```bash
+git clone https://github.com/MatanKarmazin/uptime-monitor.git
+cd uptime-monitor
+
+docker compose up -d --build
+```
+
+---
+
+# 🧹 Infrastructure Cleanup
+
+To destroy all provisioned AWS infrastructure:
+
+```bash
+terraform destroy
+```
+
+---
+
+# 📌 Design Decisions
+
+* Redis is used to persist monitoring state between health checks.
+* Slack alerts are triggered only on status changes to avoid duplicate notifications.
+* Docker Compose was selected for simplicity and deployment consistency.
+* Prometheus + Grafana provide lightweight but production-style observability.
+* Terraform enables reproducible infrastructure provisioning without manual AWS Console setup.
+
+---
+
+# 🏗️ Future Improvements
+
+* [ ] Add HTTPS and reverse proxy support using Nginx
+* [ ] Store secrets securely using AWS Secrets Manager or Vault
+* [ ] Replace synchronous HTTP requests with fully async `httpx`
+* [ ] Add automated integration and load testing
+* [ ] Add persistent Grafana storage volumes
+* [ ] Add authentication for Grafana dashboards
+* [ ] Expand monitoring configuration dynamically from external sources instead of hardcoded URLs

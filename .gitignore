@@ -15,6 +15,13 @@ ENV/
 *.pem
 *.csv
 
+# SSH Keys
+uptime-monitor-key
+uptime-monitor-key.pub
+
+# Logs
+*.log
+
 # Mac OS
 .DS_Store
 .AppleDouble
