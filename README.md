@@ -1,4 +1,4 @@
-# 🚀 Cloud-Native Uptime Monitor & Alerting Engine
+# 🚀 Uptime Monitor & Alerting Platform
 
 ![CI/CD Status](https://github.com/MatanKarmazin/uptime-monitor/actions/workflows/ci.yml/badge.svg)
 ![Deployment Status](https://github.com/MatanKarmazin/uptime-monitor/actions/workflows/deploy.yml/badge.svg)
@@ -56,6 +56,8 @@ Built with a DevOps-focused approach, the project demonstrates infrastructure au
 ---
 
 # 🏗️ Architecture Overview
+
+The monitoring workflow is built around asynchronous health checks, centralized state management, and observability tooling:
 
 ```text
                     ┌────────────────────┐
@@ -215,12 +217,38 @@ terraform destroy
 
 ---
 
-# 🏗️ Future Improvements
+## 🧠 What I Learned
 
-* [ ] Add HTTPS and reverse proxy support using Nginx
-* [ ] Store secrets securely using AWS Secrets Manager or Vault
+This project helped me gain hands-on experience with:
+
+* Infrastructure as Code using Terraform
+* Container orchestration with Docker Compose
+* Cloud deployment on AWS EC2
+* Monitoring and observability using Prometheus and Grafana
+* Stateful alerting patterns using Redis
+* CI/CD automation with GitHub Actions
+* Managing multi-service applications in production-style environments
+
+---
+
+## 🏗️ Future Improvements
+### Completed
+
+* [x] Implement CI/CD pipelines using GitHub Actions
+* [x] Add Prometheus metrics collection and Grafana dashboards
+* [x] Configure Slack webhook alerting for downtime events
+* [x] Containerize the entire stack using Docker Compose
+* [x] Provision AWS infrastructure using Terraform
+* [x] Deploy the monitoring platform to AWS EC2
+
+### Planned Improvements
 * [ ] Replace synchronous HTTP requests with fully async `httpx`
-* [ ] Add automated integration and load testing
-* [ ] Add persistent Grafana storage volumes
+* [ ] Add persistent Docker volumes for Grafana and Prometheus data
 * [ ] Add authentication for Grafana dashboards
-* [ ] Expand monitoring configuration dynamically from external sources instead of hardcoded URLs
+* [ ] Implement healthcheck and restart policies for all containers
+* [ ] Add automated integration testing for monitoring workflows
+* [ ] Move monitored URLs to external configuration instead of hardcoded values
+* [ ] Add HTTPS support using Nginx reverse proxy and Let's Encrypt
+* [ ] Add Discord and Email alert integrations
+* [ ] Add historical uptime reporting and SLA calculations
+* [ ] Add container resource monitoring (CPU / Memory usage)
